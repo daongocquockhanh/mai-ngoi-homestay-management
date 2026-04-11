@@ -15,7 +15,7 @@ import {
   bookingStatusEnum,
   paymentMethodEnum,
   serviceChargeTypeEnum,
-} from './enums';
+} from './enums.js';
 
 // ---------------------------------------------------------------------------
 // rooms

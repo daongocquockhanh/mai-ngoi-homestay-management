@@ -11,7 +11,15 @@ import reportsRoute from './routes/reports.js';
 const app = new Hono();
 
 app.use(logger());
-app.use(cors({ origin: ['http://localhost:5173'], credentials: true }));
+
+// CORS allowlist:
+//   - local dev frontend (vite): http://localhost:5173
+//   - production frontend: set via CORS_ORIGIN env (comma-separated for multiple)
+const corsOrigins = [
+  'http://localhost:5173',
+  ...(process.env.CORS_ORIGIN?.split(',').map((s) => s.trim()).filter(Boolean) ?? []),
+];
+app.use(cors({ origin: corsOrigins, credentials: true }));
 
 // Global error handler
 app.onError((err, c) => {

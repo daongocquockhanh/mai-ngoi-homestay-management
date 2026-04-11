@@ -1,0 +1,25 @@
+# Render Blueprint — https://render.com/docs/blueprint-spec
+#
+# This file is read when you create a new Blueprint on Render and connect
+# this repository. It provisions the backend Web Service automatically.
+#
+# Frontend is deployed separately on Cloudflare Pages (static SPA).
+# Database is Neon Postgres (external, free tier).
+
+services:
+  - type: web
+    name: mai-ngoi-api
+    runtime: node
+    plan: free
+    region: singapore   # closest Render region to Vietnam
+    rootDir: .
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: DATABASE_URL
+        sync: false   # set manually in Render dashboard (Neon connection string)
+      - key: CORS_ORIGIN
+        sync: false   # set manually to the Cloudflare Pages domain

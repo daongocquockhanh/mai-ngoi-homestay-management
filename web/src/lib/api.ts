@@ -1,4 +1,6 @@
-const BASE = '/api'
+// In dev, BASE is '/api' and Vite proxies to localhost:3000 (see vite.config.ts).
+// In prod, set VITE_API_BASE_URL to the Render URL, e.g. https://mai-ngoi-api.onrender.com
+const BASE = import.meta.env.VITE_API_BASE_URL || '/api'
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
