@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { Users, LogIn, LogOut, BedDouble } from 'lucide-react'
+import { Users, LogIn, LogOut, BedDouble, CalendarClock } from 'lucide-react'
 import { dashboardApi, type Booking } from '@/lib/api'
 import { Card, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -11,24 +11,27 @@ export function DashboardPage() {
     queryKey: ['dashboard'],
     queryFn: dashboardApi.today,
     refetchInterval: 30_000, // refresh every 30s
+    refetchOnMount: 'always', // always refetch when navigating back to the page
+    staleTime: 0, // never serve cached data without a background refetch
   })
 
   if (isLoading) return <p className="text-muted-foreground">Đang tải...</p>
   if (error) return <p className="text-destructive">Lỗi: {(error as Error).message}</p>
   if (!data) return null
 
-  const { stats, rooms, arrivals, departures, inHouse } = data
+  const { stats, rooms, arrivals, departures, inHouse, upcoming } = data
 
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">Tổng quan hôm nay</h2>
 
       {/* Stats grid */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
         <StatCard icon={BedDouble} label="Phòng trống" value={stats.available} color="text-emerald-600" />
         <StatCard icon={Users} label="Đang ở" value={stats.inHouseGuests} color="text-blue-600" />
         <StatCard icon={LogIn} label="Nhận phòng" value={stats.arrivalsToday} color="text-amber-600" />
         <StatCard icon={LogOut} label="Trả phòng" value={stats.departuresToday} color="text-purple-600" />
+        <StatCard icon={CalendarClock} label="Sắp tới" value={stats.upcomingCount} color="text-indigo-600" />
       </div>
 
       {/* Room status overview */}
@@ -83,6 +86,20 @@ export function DashboardPage() {
         ) : (
           <div className="space-y-2">
             {inHouse.map((b) => (
+              <BookingRow key={b.id} booking={b} />
+            ))}
+          </div>
+        )}
+      </Card>
+
+      {/* Upcoming bookings (next 7 days) */}
+      <Card>
+        <CardHeader><CardTitle>Đặt phòng sắp tới ({upcoming.length})</CardTitle></CardHeader>
+        {upcoming.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Không có đặt phòng sắp tới</p>
+        ) : (
+          <div className="space-y-2">
+            {upcoming.map((b) => (
               <BookingRow key={b.id} booking={b} />
             ))}
           </div>

@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import { BOOKING_STATUS, PAYMENT_METHOD, SERVICE_TYPE } from '@/lib/constants'
-import { formatVND, formatDate } from '@/lib/utils'
+import { formatVND, formatDate, calculateNights } from '@/lib/utils'
 
 export function BookingsPage() {
   const [statusFilter, setStatusFilter] = useState('')
@@ -92,30 +92,28 @@ function BookingCard({ booking, expanded, onToggle }: {
   const queryClient = useQueryClient()
   const statusConfig = BOOKING_STATUS[booking.status]
 
+  const invalidateAll = () => {
+    // refetchType: 'all' forces inactive queries (like the dashboard when user is
+    // on this page) to refetch in the background, so when they navigate back the
+    // data is already fresh instead of showing a stale flash.
+    queryClient.invalidateQueries({ queryKey: ['bookings'], refetchType: 'all' })
+    queryClient.invalidateQueries({ queryKey: ['dashboard'], refetchType: 'all' })
+    queryClient.invalidateQueries({ queryKey: ['rooms'], refetchType: 'all' })
+  }
+
   const checkInMutation = useMutation({
     mutationFn: () => bookingsApi.checkIn(booking.id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['bookings'] })
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
-      queryClient.invalidateQueries({ queryKey: ['rooms'] })
-    },
+    onSuccess: invalidateAll,
   })
 
   const checkOutMutation = useMutation({
     mutationFn: () => bookingsApi.checkOut(booking.id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['bookings'] })
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
-      queryClient.invalidateQueries({ queryKey: ['rooms'] })
-    },
+    onSuccess: invalidateAll,
   })
 
   const cancelMutation = useMutation({
     mutationFn: () => bookingsApi.cancel(booking.id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['bookings'] })
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
-    },
+    onSuccess: invalidateAll,
   })
 
   return (
@@ -211,6 +209,14 @@ function BookingDetail({ booking }: { booking: Booking }) {
         <div><span className="text-muted-foreground">Đã thanh toán:</span> <strong>{formatVND(totalPaid)}</strong></div>
         <div><span className="text-muted-foreground">Còn lại:</span> <strong className={balance > 0 ? 'text-destructive' : 'text-emerald-600'}>{formatVND(balance)}</strong></div>
       </div>
+
+      {/* Notes */}
+      {detail.notes && (
+        <div className="rounded-md bg-amber-50 p-3 text-sm">
+          <p className="mb-1 text-xs font-medium text-amber-800">Ghi chú</p>
+          <p className="whitespace-pre-wrap text-amber-900">{detail.notes}</p>
+        </div>
+      )}
 
       {/* Service charges */}
       {(detail.serviceCharges?.length ?? 0) > 0 && (
@@ -326,51 +332,145 @@ function NewBookingForm({ onClose }: { onClose: () => void }) {
     queryFn: roomsApi.list,
   })
 
+  const availableRooms = rooms?.filter((r) => r.status !== 'MAINTENANCE') ?? []
+
+  // Controlled form state
+  const [guestName, setGuestName] = useState('')
+  const [phone, setPhone] = useState('')
+  const [roomId, setRoomId] = useState('')
+  const [checkIn, setCheckIn] = useState('')
+  const [checkOut, setCheckOut] = useState('')
+  const [totalRoomPrice, setTotalRoomPrice] = useState('')
+  const [priceEdited, setPriceEdited] = useState(false)
+  const [notes, setNotes] = useState('')
+
+  // Auto-calculate total when room/dates change (unless user manually edited)
+  const selectedRoom = availableRooms.find((r) => r.id === roomId)
+  const nights = calculateNights(checkIn, checkOut)
+  const roomPricePerNight = selectedRoom ? parseFloat(selectedRoom.pricePerNight) : 0
+  const suggested = roomPricePerNight * nights
+
+  // If the user hasn't manually overridden the price, keep it in sync with the suggestion
+  const displayedPrice = priceEdited ? totalRoomPrice : suggested > 0 ? suggested.toString() : ''
+
   const mutation = useMutation({
     mutationFn: bookingsApi.create,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['bookings'] })
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      queryClient.invalidateQueries({ queryKey: ['bookings'], refetchType: 'all' })
+      queryClient.invalidateQueries({ queryKey: ['dashboard'], refetchType: 'all' })
+      queryClient.invalidateQueries({ queryKey: ['rooms'], refetchType: 'all' })
       onClose()
     },
   })
 
-  const availableRooms = rooms?.filter((r) => r.status !== 'MAINTENANCE') ?? []
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    const finalPrice = Number(displayedPrice)
+    if (!Number.isFinite(finalPrice) || finalPrice < 0) return
+    mutation.mutate({
+      roomId,
+      guestName,
+      phone,
+      checkIn,
+      checkOut,
+      totalRoomPrice: finalPrice,
+      notes: notes || undefined,
+    })
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
       <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
         <h3 className="mb-4 text-lg font-bold">Đặt phòng mới</h3>
-        <form
-          className="space-y-3"
-          onSubmit={(e) => {
-            e.preventDefault()
-            const fd = new FormData(e.currentTarget)
-            mutation.mutate({
-              roomId: fd.get('roomId') as string,
-              guestName: fd.get('guestName') as string,
-              phone: fd.get('phone') as string,
-              checkIn: fd.get('checkIn') as string,
-              checkOut: fd.get('checkOut') as string,
-              totalRoomPrice: Number(fd.get('totalRoomPrice')),
-              notes: (fd.get('notes') as string) || undefined,
-            })
-          }}
-        >
-          <Input id="guestName" name="guestName" label="Tên khách" required />
-          <Input id="phone" name="phone" label="Số điện thoại" required />
+        <form className="space-y-3" onSubmit={handleSubmit}>
+          <Input
+            id="guestName"
+            label="Tên khách"
+            value={guestName}
+            onChange={(e) => setGuestName(e.target.value)}
+            required
+          />
+          <Input
+            id="phone"
+            label="Số điện thoại"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            required
+          />
           <Select
             id="roomId"
-            name="roomId"
             label="Phòng"
-            options={availableRooms.map((r) => ({ value: r.id, label: r.name }))}
+            value={roomId}
+            onChange={(e) => {
+              setRoomId(e.target.value)
+              setPriceEdited(false) // reset manual override
+            }}
+            options={[
+              { value: '', label: '-- Chọn phòng --' },
+              ...availableRooms.map((r) => ({
+                value: r.id,
+                label: `${r.name} — ${parseFloat(r.pricePerNight) > 0 ? formatVND(r.pricePerNight) + '/đêm' : 'Chưa đặt giá'}`,
+              })),
+            ]}
+            required
           />
           <div className="grid grid-cols-2 gap-3">
-            <Input id="checkIn" name="checkIn" label="Ngày nhận" type="date" required />
-            <Input id="checkOut" name="checkOut" label="Ngày trả" type="date" required />
+            <Input
+              id="checkIn"
+              label="Ngày nhận"
+              type="date"
+              value={checkIn}
+              onChange={(e) => {
+                setCheckIn(e.target.value)
+                setPriceEdited(false)
+              }}
+              required
+            />
+            <Input
+              id="checkOut"
+              label="Ngày trả"
+              type="date"
+              value={checkOut}
+              onChange={(e) => {
+                setCheckOut(e.target.value)
+                setPriceEdited(false)
+              }}
+              required
+            />
           </div>
-          <Input id="totalRoomPrice" name="totalRoomPrice" label="Tổng tiền phòng (₫)" type="number" min="0" required />
-          <Input id="notes" name="notes" label="Ghi chú" />
+
+          {/* Auto-calculated total with manual override */}
+          <div>
+            <Input
+              id="totalRoomPrice"
+              label={`Tổng tiền phòng (₫)${nights > 0 ? ` — ${nights} đêm` : ''}`}
+              type="number"
+              min="0"
+              value={displayedPrice}
+              onChange={(e) => {
+                setPriceEdited(true)
+                setTotalRoomPrice(e.target.value)
+              }}
+              required
+            />
+            {suggested > 0 && !priceEdited && (
+              <p className="mt-1 text-xs text-muted-foreground">
+                Tự động tính: {formatVND(roomPricePerNight)} × {nights} đêm = {formatVND(suggested)}
+              </p>
+            )}
+            {priceEdited && suggested > 0 && Number(displayedPrice) !== suggested && (
+              <p className="mt-1 text-xs text-amber-600">
+                Đã chỉnh sửa (gợi ý: {formatVND(suggested)})
+              </p>
+            )}
+          </div>
+
+          <Input
+            id="notes"
+            label="Ghi chú"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+          />
 
           {mutation.error && (
             <p className="text-sm text-destructive">{(mutation.error as Error).message}</p>

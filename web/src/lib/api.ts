@@ -36,6 +36,7 @@ export class ApiError extends Error {
 export interface Room {
   id: string
   name: string
+  pricePerNight: string
   status: 'AVAILABLE' | 'OCCUPIED' | 'CLEANING' | 'MAINTENANCE'
   createdAt: string
   updatedAt: string
@@ -55,6 +56,12 @@ export const roomsApi = {
     request<Room>(`/rooms/${id}/status`, {
       method: 'PATCH',
       body: JSON.stringify({ status }),
+    }),
+
+  updatePrice: (id: string, pricePerNight: number) =>
+    request<Room>(`/rooms/${id}/price`, {
+      method: 'PATCH',
+      body: JSON.stringify({ pricePerNight }),
     }),
 }
 
@@ -174,11 +181,13 @@ export interface DashboardData {
     arrivalsToday: number
     departuresToday: number
     inHouseGuests: number
+    upcomingCount: number
   }
   rooms: Room[]
   arrivals: Booking[]
   departures: Booking[]
   inHouse: Booking[]
+  upcoming: Booking[]
 }
 
 export const dashboardApi = {

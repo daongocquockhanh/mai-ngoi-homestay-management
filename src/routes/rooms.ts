@@ -6,6 +6,7 @@ import { rooms, bookings } from '../db/schema/index.js';
 import { validateJson } from '../middleware/validate.js';
 import {
   updateRoomStatusSchema,
+  updateRoomPriceSchema,
   availabilityQuerySchema,
 } from '../validators/room.js';
 
@@ -94,6 +95,36 @@ app.patch('/:id/status', validateJson(updateRoomStatusSchema), async (c) => {
   const [updated] = await db
     .update(rooms)
     .set({ status, updatedAt: new Date() })
+    .where(eq(rooms.id, id))
+    .returning();
+
+  return c.json(updated);
+});
+
+// ---------------------------------------------------------------------------
+// PATCH /rooms/:id/price  — update nightly price
+// ---------------------------------------------------------------------------
+
+app.patch('/:id/price', validateJson(updateRoomPriceSchema), async (c) => {
+  const parseResult = uuidParam.safeParse(c.req.param('id'));
+  if (!parseResult.success) return c.json({ error: 'Invalid room id' }, 400);
+  const id = parseResult.data;
+
+  const { pricePerNight } = c.get('validated');
+
+  const existing = await db
+    .select({ id: rooms.id })
+    .from(rooms)
+    .where(eq(rooms.id, id))
+    .limit(1);
+
+  if (existing.length === 0) {
+    return c.json({ error: 'Room not found' }, 404);
+  }
+
+  const [updated] = await db
+    .update(rooms)
+    .set({ pricePerNight: pricePerNight.toString(), updatedAt: new Date() })
     .where(eq(rooms.id, id))
     .returning();
 

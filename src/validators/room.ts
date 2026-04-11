@@ -6,6 +6,12 @@ export const updateRoomStatusSchema = z.object({
 
 export type UpdateRoomStatusInput = z.infer<typeof updateRoomStatusSchema>;
 
+export const updateRoomPriceSchema = z.object({
+  pricePerNight: z.number().finite().nonnegative('Giá phải là số không âm'),
+});
+
+export type UpdateRoomPriceInput = z.infer<typeof updateRoomPriceSchema>;
+
 export const availabilityQuerySchema = z.object({
   checkIn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be YYYY-MM-DD'),
   checkOut: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be YYYY-MM-DD'),

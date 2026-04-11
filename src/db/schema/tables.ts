@@ -23,13 +23,18 @@ import {
 // Fixed inventory: Bạch Yến, Như Ý, Đông Ba, An Cựu (seeded, not enforced here).
 // ---------------------------------------------------------------------------
 
-export const rooms = pgTable('rooms', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  name: varchar('name', { length: 100 }).notNull().unique(),
-  status: roomStatusEnum('status').notNull().default('AVAILABLE'),
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-});
+export const rooms = pgTable(
+  'rooms',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    name: varchar('name', { length: 100 }).notNull().unique(),
+    pricePerNight: numeric('price_per_night', { precision: 10, scale: 2 }).notNull().default('0'),
+    status: roomStatusEnum('status').notNull().default('AVAILABLE'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [check('chk_room_price_nonneg', sql`${table.pricePerNight} >= 0`)],
+);
 
 export const roomsRelations = relations(rooms, ({ many }) => ({
   bookings: many(bookings),

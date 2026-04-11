@@ -19,3 +19,13 @@ export function formatVND(amount: number | string): string {
 export function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('vi-VN')
 }
+
+/** Calculate number of nights between two YYYY-MM-DD date strings */
+export function calculateNights(checkIn: string, checkOut: string): number {
+  if (!checkIn || !checkOut) return 0
+  const a = new Date(checkIn)
+  const b = new Date(checkOut)
+  const ms = b.getTime() - a.getTime()
+  const nights = Math.round(ms / (1000 * 60 * 60 * 24))
+  return nights > 0 ? nights : 0
+}
