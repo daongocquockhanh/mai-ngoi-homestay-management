@@ -6,6 +6,7 @@ import 'dotenv/config';
 import bookingsRoute from './routes/bookings.js';
 import roomsRoute from './routes/rooms.js';
 import dashboardRoute from './routes/dashboard.js';
+import reportsRoute from './routes/reports.js';
 
 const app = new Hono();
 
@@ -29,6 +30,7 @@ app.get('/health', (c) => {
 app.route('/rooms', roomsRoute);
 app.route('/bookings', bookingsRoute);
 app.route('/dashboard', dashboardRoute);
+app.route('/reports', reportsRoute);
 
 const port = Number(process.env.PORT) || 3000;
 

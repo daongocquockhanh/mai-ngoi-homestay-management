@@ -6,6 +6,7 @@ import { Layout } from '@/components/layout'
 import { DashboardPage } from '@/pages/dashboard'
 import { RoomsPage } from '@/pages/rooms'
 import { BookingsPage } from '@/pages/bookings'
+import { ReportsPage } from '@/pages/reports'
 import './index.css'
 
 const queryClient = new QueryClient({
@@ -26,6 +27,7 @@ createRoot(document.getElementById('root')!).render(
             <Route index element={<DashboardPage />} />
             <Route path="rooms" element={<RoomsPage />} />
             <Route path="bookings" element={<BookingsPage />} />
+            <Route path="reports" element={<ReportsPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

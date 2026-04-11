@@ -1,11 +1,12 @@
 import { NavLink, Outlet } from 'react-router'
-import { LayoutDashboard, BedDouble, CalendarDays } from 'lucide-react'
+import { LayoutDashboard, BedDouble, CalendarDays, BarChart3 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const navItems = [
   { to: '/', icon: LayoutDashboard, label: 'Tổng quan' },
   { to: '/rooms', icon: BedDouble, label: 'Phòng' },
   { to: '/bookings', icon: CalendarDays, label: 'Đặt phòng' },
+  { to: '/reports', icon: BarChart3, label: 'Báo cáo' },
 ]
 
 export function Layout() {

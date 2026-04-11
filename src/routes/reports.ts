@@ -1,9 +1,23 @@
 import { Hono } from 'hono';
-import { and, gte, ne } from 'drizzle-orm';
+import { and, gte, lt, ne, desc } from 'drizzle-orm';
 import { db } from '../db/index.js';
 import { bookings } from '../db/schema/index.js';
 
 const app = new Hono();
+
+/** Parse "YYYY-MM" into { from: "YYYY-MM-01", to: "YYYY-(M+1)-01" }. */
+function parseMonth(ym: string): { from: string; to: string } | null {
+  const match = /^(\d{4})-(\d{2})$/.exec(ym);
+  if (!match) return null;
+  const y = Number(match[1]);
+  const m = Number(match[2]);
+  if (m < 1 || m > 12) return null;
+  const from = `${match[1]}-${match[2]}-01`;
+  const nextY = m === 12 ? y + 1 : y;
+  const nextM = m === 12 ? 1 : m + 1;
+  const to = `${nextY}-${String(nextM).padStart(2, '0')}-01`;
+  return { from, to };
+}
 
 /**
  * Returns YYYY-MM-DD for the server's local date.
@@ -92,6 +106,29 @@ app.get('/monthly', async (c) => {
   );
 
   return c.json(result);
+});
+
+// ---------------------------------------------------------------------------
+// GET /reports/monthly/:month/bookings  — bookings whose check-in falls in
+// the given YYYY-MM (non-cancelled). Mirrors /reports/monthly grouping so the
+// drill-down matches the aggregate exactly.
+// ---------------------------------------------------------------------------
+
+app.get('/monthly/:month/bookings', async (c) => {
+  const range = parseMonth(c.req.param('month'));
+  if (!range) return c.json({ error: 'Invalid month format, expected YYYY-MM' }, 400);
+
+  const rows = await db.query.bookings.findMany({
+    where: and(
+      gte(bookings.checkIn, range.from),
+      lt(bookings.checkIn, range.to),
+      ne(bookings.status, 'CANCELLED'),
+    ),
+    with: { room: true, serviceCharges: true },
+    orderBy: [desc(bookings.checkIn)],
+  });
+
+  return c.json(rows);
 });
 
 export default app;

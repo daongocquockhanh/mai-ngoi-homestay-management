@@ -193,3 +193,22 @@ export interface DashboardData {
 export const dashboardApi = {
   today: () => request<DashboardData>('/dashboard/today'),
 }
+
+// ---------------------------------------------------------------------------
+// Reports
+// ---------------------------------------------------------------------------
+
+export interface MonthlyReportRow {
+  month: string // YYYY-MM
+  bookingCount: number
+  nightsSold: number
+  roomRevenue: number
+  serviceRevenue: number
+  totalRevenue: number
+}
+
+export const reportsApi = {
+  monthly: () => request<MonthlyReportRow[]>('/reports/monthly'),
+  monthlyBookings: (month: string) =>
+    request<Booking[]>(`/reports/monthly/${month}/bookings`),
+}
