@@ -6,6 +6,7 @@ import { Card, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { BOOKING_STATUS } from '@/lib/constants'
 import { formatVND, formatDate } from '@/lib/utils'
+import { BookingDetail } from '@/pages/bookings'
 
 export function ReportsPage() {
   const { data: monthly, isLoading } = useQuery({
@@ -101,6 +102,8 @@ function MonthRow({ row, expanded, onToggle }: {
 }
 
 function MonthDetail({ month }: { month: string }) {
+  const [expandedId, setExpandedId] = useState<string | null>(null)
+
   const { data: bookings, isLoading } = useQuery({
     queryKey: ['reports', 'monthly', month, 'bookings'],
     queryFn: () => reportsApi.monthlyBookings(month),
@@ -116,26 +119,49 @@ function MonthDetail({ month }: { month: string }) {
   return (
     <div className="space-y-2 border-t border-border p-3">
       {bookings.map((b) => (
-        <BookingHistoryRow key={b.id} booking={b} />
+        <BookingHistoryRow
+          key={b.id}
+          booking={b}
+          expanded={expandedId === b.id}
+          onToggle={() => setExpandedId(expandedId === b.id ? null : b.id)}
+        />
       ))}
     </div>
   )
 }
 
-function BookingHistoryRow({ booking }: { booking: Booking }) {
+function BookingHistoryRow({ booking, expanded, onToggle }: {
+  booking: Booking
+  expanded: boolean
+  onToggle: () => void
+}) {
   const statusConfig = BOOKING_STATUS[booking.status]
   return (
-    <div className="flex items-center justify-between rounded-md bg-gray-50 p-2 text-sm">
-      <div>
-        <p className="font-medium">{booking.guestName}</p>
-        <p className="text-xs text-muted-foreground">
-          {booking.room?.name} · {formatDate(booking.checkIn)} → {formatDate(booking.checkOut)}
-        </p>
-      </div>
-      <div className="text-right">
-        <p className="font-medium">{formatVND(booking.totalRoomPrice)}</p>
-        <Badge variant={statusConfig.variant}>{statusConfig.label}</Badge>
-      </div>
+    <div className="rounded-md bg-gray-50">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="flex w-full items-center justify-between p-2 text-left text-sm hover:bg-gray-100"
+      >
+        <div className="flex items-center gap-2">
+          {expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+          <div>
+            <p className="font-medium">{booking.guestName}</p>
+            <p className="text-xs text-muted-foreground">
+              {booking.room?.name} · {formatDate(booking.checkIn)} → {formatDate(booking.checkOut)}
+            </p>
+          </div>
+        </div>
+        <div className="text-right">
+          <p className="font-medium">{formatVND(booking.totalRoomPrice)}</p>
+          <Badge variant={statusConfig.variant}>{statusConfig.label}</Badge>
+        </div>
+      </button>
+      {expanded && (
+        <div className="px-3 pb-3">
+          <BookingDetail booking={booking} />
+        </div>
+      )}
     </div>
   )
 }

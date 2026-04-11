@@ -161,7 +161,7 @@ function BookingCard({ booking, expanded, onToggle }: {
 // Booking Detail (service charges + payments)
 // ---------------------------------------------------------------------------
 
-function BookingDetail({ booking }: { booking: Booking }) {
+export function BookingDetail({ booking }: { booking: Booking }) {
   const queryClient = useQueryClient()
   const { data: detail } = useQuery({
     queryKey: ['booking', booking.id],
