@@ -27,11 +27,11 @@ export function DashboardPage() {
 
       {/* Stats grid */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-        <StatCard icon={BedDouble} label="Phòng trống" value={stats.available} color="text-emerald-600" />
-        <StatCard icon={Users} label="Đang ở" value={stats.inHouseGuests} color="text-blue-600" />
-        <StatCard icon={LogIn} label="Nhận phòng" value={stats.arrivalsToday} color="text-amber-600" />
-        <StatCard icon={LogOut} label="Trả phòng" value={stats.departuresToday} color="text-purple-600" />
-        <StatCard icon={CalendarClock} label="Sắp tới" value={stats.upcomingCount} color="text-indigo-600" />
+        <StatCard icon={BedDouble} label="Phòng trống" value={stats.available} color="text-[#4A7A3E]" />
+        <StatCard icon={Users} label="Đang ở" value={stats.inHouseGuests} color="text-[#8B6914]" />
+        <StatCard icon={LogIn} label="Nhận phòng" value={stats.arrivalsToday} color="text-[#9A6B30]" />
+        <StatCard icon={LogOut} label="Trả phòng" value={stats.departuresToday} color="text-[#7A4A6B]" />
+        <StatCard icon={CalendarClock} label="Sắp tới" value={stats.upcomingCount} color="text-[#B85C38]" />
       </div>
 
       {/* Room status overview */}
@@ -117,7 +117,7 @@ function StatCard({ icon: Icon, label, value, color }: {
 }) {
   return (
     <Card className="flex items-center gap-3">
-      <div className={`rounded-lg bg-gray-100 p-2 ${color}`}>
+      <div className={`rounded-lg bg-[#F0E4D4] p-2 ${color}`}>
         <Icon size={20} />
       </div>
       <div>

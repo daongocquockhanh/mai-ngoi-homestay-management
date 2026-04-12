@@ -70,7 +70,7 @@ function RoomCard({ room }: { room: Room }) {
       </div>
 
       {/* Price */}
-      <div className="mb-4 rounded-md bg-white/60 p-3">
+      <div className="mb-4 rounded-md bg-[#FFFBF7]/50 p-3 backdrop-blur-md">
         <p className="mb-1 text-xs text-muted-foreground">Giá mỗi đêm</p>
         {editingPrice ? (
           <div className="flex gap-2">

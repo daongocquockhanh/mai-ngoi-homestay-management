@@ -1,27 +1,32 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-primary: #2563eb;
-  --color-primary-foreground: #ffffff;
-  --color-secondary: #f1f5f9;
-  --color-secondary-foreground: #0f172a;
-  --color-destructive: #ef4444;
-  --color-destructive-foreground: #ffffff;
-  --color-muted: #f1f5f9;
-  --color-muted-foreground: #64748b;
-  --color-accent: #f1f5f9;
-  --color-accent-foreground: #0f172a;
-  --color-border: #e2e8f0;
-  --color-ring: #2563eb;
-  --color-background: #ffffff;
-  --color-foreground: #0f172a;
-  --color-card: #ffffff;
-  --color-card-foreground: #0f172a;
+  /* Mái Ngói — warm terracotta palette inspired by Vietnamese tile roofs */
+  --color-primary: #B85C38;
+  --color-primary-foreground: #FFFFFF;
+  --color-secondary: #F0E4D4;
+  --color-secondary-foreground: #3D2B1F;
+  --color-destructive: #C94040;
+  --color-destructive-foreground: #FFFFFF;
+  --color-muted: #F0E4D4;
+  --color-muted-foreground: #8C7B6B;
+  --color-accent: #EAD9C6;
+  --color-accent-foreground: #3D2B1F;
+  --color-border: #DDD0C0;
+  --color-ring: #B85C38;
+  --color-background: #FDF8F3;
+  --color-foreground: #2D1B0E;
+  --color-card: #FFFBF7;
+  --color-card-foreground: #2D1B0E;
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
 }
 
 body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Lora', 'Georgia', serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', 'Georgia', serif;
 }

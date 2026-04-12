@@ -207,14 +207,14 @@ export function BookingDetail({ booking }: { booking: Booking }) {
         <div><span className="text-muted-foreground">Tiền phòng:</span> <strong>{formatVND(detail.totalRoomPrice)}</strong></div>
         <div><span className="text-muted-foreground">Phụ thu:</span> <strong>{formatVND(totalCharges)}</strong></div>
         <div><span className="text-muted-foreground">Đã thanh toán:</span> <strong>{formatVND(totalPaid)}</strong></div>
-        <div><span className="text-muted-foreground">Còn lại:</span> <strong className={balance > 0 ? 'text-destructive' : 'text-emerald-600'}>{formatVND(balance)}</strong></div>
+        <div><span className="text-muted-foreground">Còn lại:</span> <strong className={balance > 0 ? 'text-destructive' : 'text-[#4A7A3E]'}>{formatVND(balance)}</strong></div>
       </div>
 
       {/* Notes */}
       {detail.notes && (
-        <div className="rounded-md bg-amber-50 p-3 text-sm">
-          <p className="mb-1 text-xs font-medium text-amber-800">Ghi chú</p>
-          <p className="whitespace-pre-wrap text-amber-900">{detail.notes}</p>
+        <div className="rounded-md bg-[#FDF5E6]/60 p-3 text-sm backdrop-blur-md">
+          <p className="mb-1 text-xs font-medium text-[#8B6914]">Ghi chú</p>
+          <p className="whitespace-pre-wrap text-[#5C4A1E]">{detail.notes}</p>
         </div>
       )}
 
@@ -380,7 +380,7 @@ function NewBookingForm({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
-      <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full max-w-md rounded-lg bg-card/70 p-6 shadow-xl backdrop-blur-lg" onClick={(e) => e.stopPropagation()}>
         <h3 className="mb-4 text-lg font-bold">Đặt phòng mới</h3>
         <form className="space-y-3" onSubmit={handleSubmit}>
           <Input
@@ -459,7 +459,7 @@ function NewBookingForm({ onClose }: { onClose: () => void }) {
               </p>
             )}
             {priceEdited && suggested > 0 && Number(displayedPrice) !== suggested && (
-              <p className="mt-1 text-xs text-amber-600">
+              <p className="mt-1 text-xs text-[#9A6B30]">
                 Đã chỉnh sửa (gợi ý: {formatVND(suggested)})
               </p>
             )}

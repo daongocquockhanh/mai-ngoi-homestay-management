@@ -8,10 +8,10 @@ interface BadgeProps {
 
 const variantStyles: Record<NonNullable<BadgeProps['variant']>, string> = {
   default: 'bg-primary text-primary-foreground',
-  success: 'bg-emerald-100 text-emerald-800',
-  warning: 'bg-amber-100 text-amber-800',
-  danger: 'bg-red-100 text-red-800',
-  muted: 'bg-gray-100 text-gray-600',
+  success: 'bg-[#E8F0E4] text-[#3D6B30]',
+  warning: 'bg-[#FDF5E6] text-[#8B6914]',
+  danger: 'bg-[#FDF0ED] text-[#A04030]',
+  muted: 'bg-[#F0E4D4] text-[#8C7B6B]',
 }
 
 export function Badge({ children, variant = 'default', className }: BadgeProps) {

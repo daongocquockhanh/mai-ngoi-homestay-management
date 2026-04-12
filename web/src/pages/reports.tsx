@@ -58,7 +58,7 @@ export function ReportsPage() {
 function SummaryCard({ label, value }: { label: string; value: string }) {
   return (
     <Card className="flex items-center gap-3">
-      <div className="rounded-lg bg-gray-100 p-2 text-emerald-600">
+      <div className="rounded-lg bg-[#F0E4D4] p-2 text-[#4A7A3E]">
         <TrendingUp size={20} />
       </div>
       <div>
@@ -137,11 +137,11 @@ function BookingHistoryRow({ booking, expanded, onToggle }: {
 }) {
   const statusConfig = BOOKING_STATUS[booking.status]
   return (
-    <div className="rounded-md bg-gray-50">
+    <div className="rounded-md bg-[#F5EDE2]/50 backdrop-blur-md">
       <button
         type="button"
         onClick={onToggle}
-        className="flex w-full items-center justify-between p-2 text-left text-sm hover:bg-gray-100"
+        className="flex w-full items-center justify-between p-2 text-left text-sm hover:bg-[#EAD9C6]"
       >
         <div className="flex items-center gap-2">
           {expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}

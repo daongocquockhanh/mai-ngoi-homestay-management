@@ -1,11 +1,11 @@
 import type { Room, Booking } from './api'
 
-/** Room status display config */
+/** Room status display config — warm earthy palette */
 export const ROOM_STATUS: Record<Room['status'], { label: string; color: string; bg: string }> = {
-  AVAILABLE: { label: 'Trống', color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200' },
-  OCCUPIED: { label: 'Có khách', color: 'text-blue-700', bg: 'bg-blue-50 border-blue-200' },
-  CLEANING: { label: 'Dọn dẹp', color: 'text-amber-700', bg: 'bg-amber-50 border-amber-200' },
-  MAINTENANCE: { label: 'Bảo trì', color: 'text-red-700', bg: 'bg-red-50 border-red-200' },
+  AVAILABLE: { label: 'Trống', color: 'text-[#4A7A3E]', bg: 'bg-[#F0F5EC]/60 border-[#C5D9B8] backdrop-blur-md' },
+  OCCUPIED: { label: 'Có khách', color: 'text-[#8B6914]', bg: 'bg-[#FDF5E6]/60 border-[#E8D5A3] backdrop-blur-md' },
+  CLEANING: { label: 'Dọn dẹp', color: 'text-[#9A6B30]', bg: 'bg-[#FEF3E2]/60 border-[#E8CFA0] backdrop-blur-md' },
+  MAINTENANCE: { label: 'Bảo trì', color: 'text-[#A04030]', bg: 'bg-[#FDF0ED]/60 border-[#E6C4BC] backdrop-blur-md' },
 }
 
 /** Booking status display config */

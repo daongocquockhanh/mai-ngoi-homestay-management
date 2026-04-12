@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200" fill="none">
+  <!-- Mái Ngói seal stamp (印章) -->
+  <!-- Outer border -->
+  <rect x="8" y="8" width="184" height="184" rx="4" stroke="#B85C38" stroke-width="8" fill="none"/>
+  <!-- Inner border -->
+  <rect x="22" y="22" width="156" height="156" rx="2" stroke="#B85C38" stroke-width="3" fill="none"/>
+  <!-- Horizontal divider -->
+  <line x1="30" y1="100" x2="170" y2="100" stroke="#B85C38" stroke-width="2.5"/>
+  <!-- Vertical divider top -->
+  <line x1="100" y1="30" x2="100" y2="100" stroke="#B85C38" stroke-width="2.5"/>
+  <!-- Text: MÁI top row -->
+  <text x="65" y="78" text-anchor="middle" font-family="serif" font-weight="900" font-size="42" fill="#B85C38">M</text>
+  <text x="138" y="78" text-anchor="middle" font-family="serif" font-weight="900" font-size="36" fill="#B85C38">ÁI</text>
+  <!-- Text: NGÓI bottom row -->
+  <text x="100" y="158" text-anchor="middle" font-family="serif" font-weight="900" font-size="38" fill="#B85C38">NGÓI</text>
+</svg>
