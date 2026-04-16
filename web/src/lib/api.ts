@@ -142,6 +142,9 @@ export const bookingsApi = {
 
   get: (id: string) => request<Booking>(`/bookings/${id}`),
 
+  calendar: (from: string, to: string) =>
+    request<Booking[]>(`/bookings/calendar?from=${from}&to=${to}`),
+
   create: (data: {
     roomId: string
     guestName: string

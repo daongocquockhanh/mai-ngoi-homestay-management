@@ -5,6 +5,7 @@ import { Card, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ROOM_STATUS, BOOKING_STATUS } from '@/lib/constants'
 import { formatVND, formatDate } from '@/lib/utils'
+import { BookingCalendar } from '@/components/booking-calendar'
 
 export function DashboardPage() {
   const { data, isLoading, error } = useQuery({
@@ -33,6 +34,9 @@ export function DashboardPage() {
         <StatCard icon={LogOut} label="Trả phòng" value={stats.departuresToday} color="text-[#7A4A6B]" />
         <StatCard icon={CalendarClock} label="Sắp tới" value={stats.upcomingCount} color="text-[#B85C38]" />
       </div>
+
+      {/* Booking calendar */}
+      <BookingCalendar />
 
       {/* Room status overview */}
       <Card>

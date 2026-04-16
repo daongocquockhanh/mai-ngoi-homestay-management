@@ -40,11 +40,15 @@ app.get('/health', (c) => {
 // Auth routes (public)
 app.route('/auth', authRoute);
 
-// All other routes require authentication
-app.use('/rooms/*', requireAuth);
-app.use('/bookings/*', requireAuth);
-app.use('/dashboard/*', requireAuth);
-app.use('/reports/*', requireAuth);
+// Protect all API routes except public ones
+const publicPaths = ['/', '/health', '/auth'];
+app.use(async (c, next) => {
+  const path = c.req.path;
+  if (publicPaths.some((p) => path === p || path.startsWith(p + '/'))) {
+    return next();
+  }
+  return (requireAuth as any)(c, next);
+});
 
 app.route('/rooms', roomsRoute);
 app.route('/bookings', bookingsRoute);

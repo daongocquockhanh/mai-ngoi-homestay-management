@@ -99,6 +99,33 @@ app.get('/', async (c) => {
 });
 
 // ---------------------------------------------------------------------------
+// GET /bookings/calendar?from=YYYY-MM-DD&to=YYYY-MM-DD
+// Returns all non-cancelled bookings that overlap with the date range.
+// ---------------------------------------------------------------------------
+
+app.get('/calendar', async (c) => {
+  const from = c.req.query('from');
+  const to = c.req.query('to');
+
+  if (!from || !to) {
+    return c.json({ error: 'from and to query params are required' }, 400);
+  }
+
+  // Overlap condition: checkIn <= to AND checkOut >= from
+  const rows = await db.query.bookings.findMany({
+    where: and(
+      lte(bookings.checkIn, to),
+      gte(bookings.checkOut, from),
+      inArray(bookings.status, ['BOOKED', 'CHECKED_IN', 'COMPLETED']),
+    ),
+    with: { room: true },
+    orderBy: [desc(bookings.checkIn)],
+  });
+
+  return c.json(rows);
+});
+
+// ---------------------------------------------------------------------------
 // POST /bookings  — create a new booking
 // ---------------------------------------------------------------------------
 
