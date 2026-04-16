@@ -18,6 +18,23 @@ import {
 } from './enums.js';
 
 // ---------------------------------------------------------------------------
+// users
+// ---------------------------------------------------------------------------
+// Single-owner auth. Seeded, no registration.
+// ---------------------------------------------------------------------------
+
+export const users = pgTable('users', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  username: varchar('username', { length: 100 }).notNull().unique(),
+  passwordHash: varchar('password_hash', { length: 255 }).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
+
+// ---------------------------------------------------------------------------
 // rooms
 // ---------------------------------------------------------------------------
 // Fixed inventory: Bạch Yến, Như Ý, Đông Ba, An Cựu (seeded, not enforced here).

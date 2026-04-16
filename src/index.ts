@@ -3,10 +3,12 @@ import { Hono } from 'hono';
 import { logger } from 'hono/logger';
 import { cors } from 'hono/cors';
 import 'dotenv/config';
+import authRoute from './routes/auth.js';
 import bookingsRoute from './routes/bookings.js';
 import roomsRoute from './routes/rooms.js';
 import dashboardRoute from './routes/dashboard.js';
 import reportsRoute from './routes/reports.js';
+import { requireAuth } from './middleware/auth.js';
 
 const app = new Hono();
 
@@ -34,6 +36,15 @@ app.get('/', (c) => {
 app.get('/health', (c) => {
   return c.json({ status: 'ok' });
 });
+
+// Auth routes (public)
+app.route('/auth', authRoute);
+
+// All other routes require authentication
+app.use('/rooms/*', requireAuth);
+app.use('/bookings/*', requireAuth);
+app.use('/dashboard/*', requireAuth);
+app.use('/reports/*', requireAuth);
 
 app.route('/rooms', roomsRoute);
 app.route('/bookings', bookingsRoute);

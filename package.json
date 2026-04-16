@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.19.12",
+    "bcryptjs": "^3.0.3",
     "dotenv": "^17.4.0",
     "drizzle-orm": "^0.45.2",
     "hono": "^4.12.10",
@@ -26,6 +27,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^22.15.2",
     "drizzle-kit": "^0.31.10",

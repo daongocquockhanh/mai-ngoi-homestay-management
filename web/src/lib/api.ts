@@ -2,17 +2,28 @@
 // In prod, set VITE_API_BASE_URL to the Render URL, e.g. https://mai-ngoi-api.onrender.com
 const BASE = import.meta.env.VITE_API_BASE_URL || '/api'
 
+function getToken(): string | null {
+  return localStorage.getItem('token')
+}
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
+  const token = getToken()
   const res = await fetch(`${BASE}${path}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options?.headers,
     },
   })
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({ error: res.statusText }))
+    // Auto-logout on 401
+    if (res.status === 401 && path !== '/auth/login') {
+      localStorage.removeItem('token')
+      window.location.href = '/login'
+    }
     throw new ApiError(res.status, body.error ?? 'Unknown error', body)
   }
 
@@ -213,4 +224,24 @@ export const reportsApi = {
   monthly: () => request<MonthlyReportRow[]>('/reports/monthly'),
   monthlyBookings: (month: string) =>
     request<Booking[]>(`/reports/monthly/${month}/bookings`),
+}
+
+// ---------------------------------------------------------------------------
+// Auth
+// ---------------------------------------------------------------------------
+
+export const authApi = {
+  login: (username: string, password: string) =>
+    request<{ token: string; username: string }>('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ username, password }),
+    }),
+
+  me: () => request<{ userId: string; username: string }>('/auth/me'),
+
+  changePassword: (currentPassword: string, newPassword: string) =>
+    request<{ message: string }>('/auth/change-password', {
+      method: 'POST',
+      body: JSON.stringify({ currentPassword, newPassword }),
+    }),
 }
