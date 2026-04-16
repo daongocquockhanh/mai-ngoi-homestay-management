@@ -106,9 +106,17 @@ function BookingCard({ booking, expanded, onToggle }: {
     onSuccess: invalidateAll,
   })
 
+  const [checkOutError, setCheckOutError] = useState('')
+
   const checkOutMutation = useMutation({
     mutationFn: () => bookingsApi.checkOut(booking.id),
-    onSuccess: invalidateAll,
+    onSuccess: () => {
+      setCheckOutError('')
+      invalidateAll()
+    },
+    onError: (err) => {
+      setCheckOutError((err as Error).message)
+    },
   })
 
   const cancelMutation = useMutation({
@@ -148,9 +156,14 @@ function BookingCard({ booking, expanded, onToggle }: {
           </>
         )}
         {booking.status === 'CHECKED_IN' && (
-          <Button size="sm" onClick={() => checkOutMutation.mutate()} disabled={checkOutMutation.isPending}>
-            Trả phòng
-          </Button>
+          <>
+            <Button size="sm" onClick={() => checkOutMutation.mutate()} disabled={checkOutMutation.isPending}>
+              Trả phòng
+            </Button>
+            {checkOutError && (
+              <p className="text-sm font-medium text-destructive">{checkOutError}</p>
+            )}
+          </>
         )}
       </div>
     </Card>

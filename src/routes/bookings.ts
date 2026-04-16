@@ -235,15 +235,28 @@ app.post('/:id/check-out', async (c) => {
 
   try {
     const updated = await db.transaction(async (tx) => {
-      const booking = await tx
-        .select()
-        .from(bookings)
-        .where(eq(bookings.id, id))
-        .limit(1);
+      const booking = await tx.query.bookings.findFirst({
+        where: eq(bookings.id, id),
+        with: { serviceCharges: true, payments: true },
+      });
 
-      if (booking.length === 0) throw new NotFoundError('Booking not found');
+      if (!booking) throw new NotFoundError('Booking not found');
 
-      assertTransition(booking[0].status, 'COMPLETED');
+      assertTransition(booking.status, 'COMPLETED');
+
+      // Check full payment before allowing check-out
+      const totalCharges = (booking.serviceCharges ?? []).reduce(
+        (sum, sc) => sum + parseFloat(sc.unitPrice) * sc.quantity, 0,
+      );
+      const grandTotal = parseFloat(booking.totalRoomPrice) + totalCharges;
+      const totalPaid = (booking.payments ?? []).reduce(
+        (sum, p) => sum + parseFloat(p.amount), 0,
+      );
+      const balance = grandTotal - totalPaid;
+
+      if (balance > 0) {
+        throw new UnpaidError(balance);
+      }
 
       const [updatedBooking] = await tx
         .update(bookings)
@@ -254,13 +267,16 @@ app.post('/:id/check-out', async (c) => {
       await tx
         .update(rooms)
         .set({ status: 'CLEANING', updatedAt: new Date() })
-        .where(eq(rooms.id, booking[0].roomId));
+        .where(eq(rooms.id, booking.roomId));
 
       return updatedBooking;
     });
 
     return c.json(updated);
   } catch (err) {
+    if (err instanceof UnpaidError) {
+      return c.json({ error: `Bạn chưa thanh toán tiền phòng, chưa thể trả phòng. Còn lại: ${err.balance.toLocaleString('vi-VN')} ₫` }, 400);
+    }
     return handleTransitionError(c, err);
   }
 });
@@ -364,6 +380,15 @@ class NotFoundError extends Error {
   constructor(message: string) {
     super(message);
     this.name = 'NotFoundError';
+  }
+}
+
+class UnpaidError extends Error {
+  balance: number;
+  constructor(balance: number) {
+    super('Unpaid balance');
+    this.name = 'UnpaidError';
+    this.balance = balance;
   }
 }
 
